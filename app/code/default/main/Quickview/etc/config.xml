@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Chigusa_Quickview>
+            <version>1.0</version>
+        </Chigusa_Quickview>
+    </modules>
+	<global>
+        <blocks>
+            <quickview>
+                <class>Chigusa_Quickview_Block</class>
+            </quickview>
+        </blocks>
+        <helpers>
+            <chigusa_quickview>
+                <class>Chigusa_Quickview_Helper</class>
+            </chigusa_quickview>
+        </helpers>
+        <models>
+            <chigusa_quickview>
+                <class>Chigusa_Quickview_Model</class>
+            </chigusa_quickview>
+		</models>
+    </global>
+    <frontend>
+        <routers>
+            <quickview>
+                <use>standard</use>
+                <args>
+                    <module>Chigusa_Quickview</module>
+                    <frontName>quickview</frontName>
+                </args>
+            </quickview>
+        </routers>
+        <layout>
+            <updates>
+                <quickview>
+                    <file>quickview.xml</file>
+                </quickview>
+            </updates>
+        </layout>
+    </frontend>
+    
+	<adminhtml>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <chigusa_quickview translate="title" module="chigusa_quickview">
+                                            <title>Chigusa Quick View</title>
+                                            <sort_order>10</sort_order>
+                                        </chigusa_quickview>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
+    <default>
+        <chigusa_quickview>
+            <general>
+                <enabled>1</enabled>
+                <enabledTab>1</enabledTab>
+                <enabledTagTab>1</enabledTagTab>
+                <enabledReviewTab>1</enabledReviewTab>
+            </general>
+            <moreview>
+                <enable>1</enable>
+                <autoplay>0</autoplay>
+                <orientation>horizontal</orientation>
+            </moreview>
+        </chigusa_quickview>
+    </default>
+
+
+</config>

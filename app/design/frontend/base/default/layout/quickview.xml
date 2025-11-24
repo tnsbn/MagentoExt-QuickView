@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<layout>
+    <catalog_category_default>
+        <reference name="product_list">
+            <action method="setTemplate"><template>chigusa/quickview/list.phtml</template></action>
+        </reference>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/jquery.js</name></action>
+            <action method="addItem" ifconfig="chigusa_quickview/general/enabled"><type>skin_js</type><name>js/productInfo.js</name></action>
+            <action method="addItem" ifconfig="chigusa_quickview/general/enabled"><type>skin_js</type><name>js/cloud-zoom.js</name></action>
+            <action method="addItem" ifconfig="chigusa_quickview/general/enabled"><type>skin_js</type><name>js/jquery.bxslider.js</name></action>
+			
+            <action method="addCss" ifconfig="chigusa_quickview/general/enabled"><stylesheet>css/chigusa_quickview.css</stylesheet></action>
+            <action method="addCss" ifconfig="chigusa_quickview/general/enabled"><stylesheet>css/cloud-zoom.css</stylesheet></action>
+            <action method="addCss" ifconfig="chigusa_quickview/general/enabled"><stylesheet>css/jquery.bxslider.css</stylesheet></action>
+        </reference>
+    </catalog_category_default>
+	
+</layout>

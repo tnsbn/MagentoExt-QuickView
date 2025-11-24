@@ -1,0 +1,355 @@
+<?php
+$_product = Mage::getModel('catalog/product')->load($this->getProduct()->getId());
+$productId = $_product->getId();
+$_helper = $this->helper('catalog/output');
+?>
+
+<?php
+$isTab = Mage::getStoreConfig('chigusa_quickview/general/enabledTab');
+$isTagTab = Mage::getStoreConfig('chigusa_quickview/general/enabledTagTab');
+$isReviewTab = Mage::getStoreConfig('chigusa_quickview/general/enabledReviewTab');
+$isMoreview = Mage::getStoreConfig('chigusa_quickview/moreview/enable');
+$isAutoplay = Mage::getStoreConfig('chigusa_quickview/moreview/autoplay');
+$orientation = Mage::getStoreConfig('chigusa_quickview/moreview/orientation');
+$galleryImages = $this->getGalleryImages();
+$_coreHelper = $this->helper('core');
+
+?>
+<?php
+$_productCollection = $this->getSlideProductCollection();
+
+$p = 0;
+$n = 0;
+$prevId = null;
+$nextId = null;
+foreach ($_productCollection as $prd) {
+	//Get prev id
+	if ($prd->getId() == $productId) {
+		$p = 1;
+	}
+	if ($p == 0) {
+		$prevId = $prd->getId();
+	}
+	//Get next id
+	if ($y == 1) {
+		$nextId = $prd->getId();
+		break;
+	}
+	if ($prd->getId() == $productId) {
+		$y = 1;
+	}
+}
+?>
+
+<div class="navi-product">
+	<?php if($prevId): ?>
+		<div class="prev-prd" dalink="<?php echo $this->getUrl('quickview/product/quickview/id/' . $prevId) ?>" title="Previous product"> < </div>
+	<?php endif; ?>
+	<?php if($nextId): ?>
+		<div class="next-prd" dalink="<?php echo $this->getUrl('quickview/product/quickview/id/' . $nextId) ?>" title="Next product"> > </div>
+	<?php endif; ?>
+</div>
+<div class="product-essential">
+<div class="tabbed-area">
+<?php if ($isTab) {?>
+	<ul class="tab-bar tab-group">
+	    <li><a class="box-one active-tab-name">Description</a></li>
+	    <?php if ($isTagTab) {?>
+		<li><a class="box-two">Product Tags</a></li>
+	    <?php } ?>
+		
+	    <?php if ($isReviewTab) {?>
+	    <li><a class="box-three">Product Reviews</a></li>
+	    <?php } ?>
+	</ul>
+<?php } ?>
+	
+	<div class="box-wrap">
+		<!-- ========== box-one ========== -->
+		<div id="box-one">
+			<div class="product-img-box">
+				<a href="<?php echo $_product->getProductUrl(); ?>">
+					<!--img src="<?php echo Mage::helper('catalog/image')->init($_product, 'image')->resize(230, 230); ?>"/-->
+				</a>
+			</div>
+			
+			<!-- ==================== image slider=================== -->
+	<div class="product-slider-wrapper">
+	<div id="houseBase" style="width: 280px;">
+		<?php
+			if (count($galleryImages) > 0) {
+				$_image = $galleryImages->getFirstItem();
+		?>
+		<a href="<?php echo $this->helper('catalog/image')->init($this->getProduct(), 'image', $_image->getFile());?>" class="cloud-zoom" rel="transparentImage: 'data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', useWrapper: false, showTitle: false, zoomWidth:'280', adjustY:20, adjustX:20">
+			<img src="<?php echo $this->helper('catalog/image')->init($this->getProduct(), 'thumbnail', $_image->getFile())->keepFrame(false)->resize(280);?>">
+		</a>
+		<?php } ?>
+	</div>
+<?php if ($isMoreview) {?>
+	<?php
+		if (count($galleryImages) > 0) {
+	?>
+		<ul class="bxslider">
+		<?php
+			foreach ($galleryImages as $_image) {
+		?>
+			<li><img src="<?php echo $this->helper('catalog/image')->init($this->getProduct(), 'thumbnail', $_image->getFile())->keepFrame(false)->resize(50);?>" data-href="<?php echo $this->helper('catalog/image')->init($this->getProduct(), 'image', $_image->getFile());?>" data-thumb-image="<?php echo $this->helper('catalog/image')->init($this->getProduct(), 'thumbnail', $_image->getFile())->keepFrame(false)->resize(285);?>"></li>
+		<?php
+			}
+		}
+	?>
+		</ul>
+<?php } ?>
+	</div>
+			<!-- ==================== End of image slider=================== -->
+
+			<div class="product-shop">
+				<p>
+					<span class="cz-product-name"><?php echo $_product->getName(); ?></span>
+					- <label>SKU: </label><span class="cz-product-sku"><?php echo $_product->getSKU(); ?></span>
+				</p>
+				
+				<p><label>Category: </label><?php echo Mage::getModel('catalog/category')->load($_product->getCategoryId())->getName(); ?></p>
+				
+				<div><label>Short Description: </label></div>
+				<div class='cz-short-description'><?php echo $_product->getShortDescription(); ?></div>
+				<p></p>
+				
+				<div><label>Description: </label><span class="flat-button" id="expand_desc"></span></div>
+				<div class="cz-product-desc"><?php echo $_product->getDescription();?></div>
+				<p></p>
+
+				<div class="col2-set">
+					<div class="col-1">
+						<span class="regular-price">
+							<span class="price"><?php echo $_coreHelper->formatPrice($_product->getPrice(), false);?></span>
+						</span>
+					</div>
+					<div class="col-1">
+						<?php if ($_product->isSaleable()): ?>
+							<button class="button" onclick="setLocation('<?php echo Mage::helper('checkout/cart')->getAddUrl($_product); ?>')"><span><span><?php echo $this->__('Add to Cart') ?></span></span></button>
+						<?php endif; ?>
+					</div>
+				</div>
+
+				<div class='divider'></div>
+
+				<ul class="add-to-links">
+					<?php if ($this->helper('wishlist')->isAllow()) : ?>
+						<li><a href="<?php echo $this->helper('wishlist')->getAddUrl($_product) ?>" class="link-wishlist"><?php echo $this->__('Add to Wishlist') ?></a></li>
+					<?php endif; ?>
+					<?php if($_compareUrl=$this->getAddToCompareUrl($_product)): ?>
+						<li><span class="separator">|</span> <a href="<?php echo $_compareUrl ?>" class="link-compare"><?php echo $this->__('Add to Compare') ?></a></li>
+					<?php endif; ?>
+				</ul>
+			</div>
+		</div>
+		<!-- ========== End of box-one ========== -->
+		
+		<!-- ========== box-two ========== -->
+	<?php if ($isTagTab) {?>
+		<div id="box-two" class="hidden">
+			<div class="list-area">
+			<!-- // Product tag list -->
+			<label><?php echo $this->__('List of product tags: ') ?></label>
+			<?php $_tags = new Mage_Tag_Block_Product_List();?>
+			<?php foreach($_tags->getTags() as $tag):?>
+				<span class="tag-item"><a href="<?php echo $tag->getTaggedProductsUrl()?>"><?php echo $tag->getName()?></a></span> 
+			<?php endforeach;?>
+			<p></p>
+			
+			<form id="addTagForm" action="<?php echo $this->getFormAction(); ?>" method="get">
+				<div class="form-add">
+					<div><label for="productTagName"><?php echo $this->__('Add Your Tags:') ?></label></div>
+					<input type="text" class="input-text required-entry" name="productTagName" id="productTagName" />
+					<button type="button" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Add Tags')) ?>" id="submitTagForm" class="button">
+						<span>
+							<span><?php echo $this->__('Add Tags') ?></span>
+						</span>
+					</button>
+				</div>
+			</form>
+			<p class="note"><?php echo $this->__("Use spaces to separate tags. Use single quotes (') for phrases.") ?></p>
+			</div>
+		</div>
+	<?php } ?>
+
+		<!-- ========== End of box-two ========== -->
+		
+		<!-- ========== box-three ========== -->
+	<?php if ($isReviewTab) {?>
+		<div id="box-three" class="hidden">
+			<div class="review-list-area">
+			<?php
+			$reviewsCount = Mage::getModel('review/review')->getTotalReviews($_product->getId(), true, Mage::app()->getStore()->getId());
+			?>
+			<p>Reviews: <?php echo $reviewsCount; ?></p>
+			<?php
+			$reviews = Mage::getModel('review/review')->getCollection()
+				->addStoreFilter(Mage::app()->getStore()->getId())
+				->addEntityFilter('product', $productId)
+				->addStatusFilter(Mage_Review_Model_Review::STATUS_APPROVED)
+				->setDateOrder()
+				->addRateVotes()
+				;
+			if(count($reviews->getItems())) {
+				$count = 0;
+				foreach($reviews->getItems() as $_review) {
+					$rUrl = Mage::getUrl('review/product/view', array('id' => $_review->getId()));
+					$count++;
+			?>
+            <dt>
+                <span class="count-view"><?=$count?></span>. <a href="<?php echo $rUrl; ?>"><?php echo $this->escapeHtml($_review->getTitle()) ?></a> <?php echo $this->__('Review by <span>%s</span>', $this->escapeHtml($_review->getNickname())) ?>
+            </dt>
+            <dd>
+                <?php $_votes = $_review->getRatingVotes(); ?>
+                <?php if (count($_votes)){ ?>
+                <table class="ratings-table">
+                    <col width="1" />
+                    <col />
+                    <tbody>
+                        <?php foreach ($_votes as $_vote): ?>
+                        <tr>
+                            <th><?php echo $this->escapeHtml($_vote->getRatingCode()) ?></th>
+                            <td>
+                                <div class="rating-box">
+                                    <div class="rating" style="width:<?php echo $_vote->getPercent() ?>%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php } ?>
+                <?php echo nl2br($this->escapeHtml($_review->getDetail())) ?>
+                <small class="date"><?php echo $this->__('(Posted on %s)', $this->formatDate($_review->getCreatedAt()), 'long') ?></small>
+            </dd>
+			<p></p>
+			<?php
+				}
+			}
+			?>
+		</div>
+			
+		<div class='divider'></div>
+<div class="form-add">
+    <h2><?php echo $this->__('Write Your Own Review') ?></h2>
+    <?php if ($this->getAllowReview()): ?>
+    <form action="<?php echo $this->getCzAction() ?>" method="post" id="review-form">
+		<input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
+        <?php echo $this->getBlockHtml('formkey'); ?>
+        <fieldset>
+            <?php echo $this->getChildHtml('form_fields_before')?>
+            <?php if( $this->getRatings() && $this->getRatings()->getSize()): ?>
+                <h4><?php echo $this->__('How do you rate this product?') ?> <em class="required">*</em></h4>
+                <span id="input-message-box"></span>
+                <table class="data-table" id="product-review-table">
+                    <col />
+                    <col width="1" />
+                    <col width="1" />
+                    <col width="1" />
+                    <col width="1" />
+                    <col width="1" />
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th><span class="nobr"><?php echo $this->__('1 star') ?></span></th>
+                            <th><span class="nobr"><?php echo $this->__('2 stars') ?></span></th>
+                            <th><span class="nobr"><?php echo $this->__('3 stars') ?></span></th>
+                            <th><span class="nobr"><?php echo $this->__('4 stars') ?></span></th>
+                            <th><span class="nobr"><?php echo $this->__('5 stars') ?></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($this->getRatings() as $_rating): ?>
+                        <tr>
+                            <th><?php echo $this->escapeHtml($_rating->getRatingCode()) ?></th>
+                        <?php foreach ($_rating->getOptions() as $_option): ?>
+                            <td class="value"><input type="radio" name="ratings[<?php echo $_rating->getId() ?>]" id="<?php echo $this->escapeHtml($_rating->getRatingCode()) ?>_<?php echo $_option->getValue() ?>" value="<?php echo $_option->getId() ?>" class="radio" /></td>
+                        <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <input type="hidden" name="validate_rating" class="validate-rating" value="" />
+                <script type="text/javascript">decorateTable('product-review-table')</script>
+            <?php endif; ?>
+                <ul class="form-list">
+                    <li>
+                        <label for="nickname_field" class="required"><em>*</em><?php echo $this->__('Nickname') ?></label>
+                        <div class="input-box">
+                            <input type="text" name="nickname" id="nickname_field" class="input-text required-entry" value="<?php //echo $this->escapeHtml($data->getNickname()) ?>" />
+                        </div>
+                    </li>
+                    <li>
+                        <label for="summary_field" class="required"><em>*</em><?php echo $this->__('Summary of Your Review') ?></label>
+                        <div class="input-box">
+                            <input type="text" name="title" id="summary_field" class="input-text required-entry" value="<?php //echo $this->escapeHtml($data->getTitle()) ?>" />
+                        </div>
+                    </li>
+                    <li>
+                        <label for="review_field" class="required"><em>*</em><?php echo $this->__('Review') ?></label>
+                        <div class="input-box">
+                            <textarea name="detail" id="review_field" cols="5" rows="3" class="required-entry"><?php //echo $this->escapeHtml($data->getDetail()) ?></textarea>
+                        </div>
+                    </li>
+                </ul>
+            </fieldset>
+            <div class="buttons-set">
+                <button type="submit" title="<?php echo $this->__('Submit Review') ?>" id="submitReview" class="button"><span><span><?php echo $this->__('Submit Review') ?></span></span></button>
+            </div>
+    </form>
+    <?php else: ?>
+    <p class="review-nologged" id="review-form">
+        <?php echo $this->__('Only registered users can write reviews. Please, <a href="%s">log in</a> or <a href="%s">register</a>', $this->getLoginLink(), Mage::helper('customer')->getRegisterUrl()) ?>
+    </p>
+    <?php endif ?>
+</div>
+			
+		</div>
+	<?php } ?>
+		<!-- ========== End of box-three ========== -->
+		
+		<div id="box-four" class="hidden">four
+		</div><!-- box-four -->
+	</div>
+</div>
+    <div class="clear"></div>
+</div>
+<script>
+jQuery(document).ready(function() {
+	jQuery('.cloud-zoom, .cloud-zoom-gallery').CloudZoom({
+		adjustX: 20,
+		adjustY: 20
+	});
+	
+	// Horizontal
+	var horiSlider = jQuery('.bxslider').bxSlider({
+		mode: '<?php echo $orientation?>',
+		auto: <?php echo $isAutoplay ? 'true' : 'false'?>,
+		autoControls: false, 
+		slideMargin: 5,
+
+		// CAROUSEL
+		minSlides: 5,
+		maxSlides: 5,
+		moveSlides: 1,
+		slideWidth: 50,
+		
+		// PAGER
+		pager: false,
+		
+		onSlideAfter: function() {
+			var currentImg = horiSlider.getCurrentSlideElement().children('img');
+			jQuery('#houseBase a').attr('href', currentImg.attr('data-href'));
+			jQuery('#houseBase img').attr('src', currentImg.attr('data-thumb-image'));
+			jQuery('.cloud-zoom, .cloud-zoom-gallery').CloudZoom();
+		}
+	});
+	
+	// Vertical moreview
+	<?php if ($orientation == 'vertical') {?>
+		jQuery('#houseBase').css('float', 'left');
+	<?php } ?>
+});
+</script>
